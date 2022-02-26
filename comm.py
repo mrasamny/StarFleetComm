@@ -24,7 +24,9 @@ def get_ip(ifaces=['wlan1', 'eth0', 'wlan0']):
 
 def is_socket_closed(sock: socket.socket) -> bool:
     try:
+        print('=======================')
         data = sock.recv(16, socket.MSG_DONTWAIT | socket.MSG_PEEK)
+        print('=======================', len(data))
         if len(data) == 0:
             return True
     except BlockingIOError as bioe:
@@ -36,6 +38,17 @@ def is_socket_closed(sock: socket.socket) -> bool:
     except BrokenPipeError as bpe:
         print(bpe)
         return True
+    except Exception as e:
+        print(e)
+        return False
+    return False
+
+
+def is_data_available(sock: socket.socket):
+    try:
+        data = sock.recv(16, socket.MSG_DONTWAIT | socket.MSG_PEEK)
+        if len(data) != 0:
+            return True
     except Exception as e:
         print(e)
         return False
@@ -65,25 +78,6 @@ def accept_tcp_connection(tcp_server):
     print(f"Accepted connection from {addr}!")
     return tcp_connection_socket, addr
 
-
-def relay_message(client: socket.socket, tcp_client_list: list):
-    if len(tcp_client_list) < 2:
-        message = 'Waiting for relay partner(s).'
-        send_message(client, TEXT, message)
-    else:
-        mesg_type, message = get_message(client);
-        print(f'received -> {(mesg_type, message)}')
-        for receiver, addr in tcp_client_list:
-            if client == receiver:
-                continue
-            try:
-                send_message(receiver, mesg_type, message)
-                print(f'sent -> {(mesg_type, message)}')
-            except Exception as e:
-                print("Unable to send message from client {addr}")
-                print(e)
-
-
 def get_message(sock: socket.socket):
     header = sock.recv(6)
     size = header[:4]
@@ -96,9 +90,9 @@ def get_message(sock: socket.socket):
     return msg_type, message
 
 
-def send_message(sock: socket.socket, msg_type: int, message: str):
+def send_message(sock: socket.socket, msg_type: int, message: bytes):
     msg_type = msg_type.to_bytes(2, byteorder='little')
-    message = msg_type+message.encode()
+    message = msg_type+message
     size = len(message).to_bytes(4, byteorder='little')
     sock.sendall(size+message)
 
@@ -109,5 +103,5 @@ def connect_to_relay(ip = '127.0.0.1', port = 12000):
     client_socket.connect(server)
     # Get greetings from server and respond
     msg_type, message = get_message(client_socket)
-    send_message(client_socket, msg_type, message.upper())
+    send_message(client_socket, msg_type, message.upper().encode())
     return client_socket
