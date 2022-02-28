@@ -36,7 +36,7 @@ if __name__ == "__main__":
     if len(ip.strip()) < 1:
         ip = '127.0.0.1'
     # start up tcp and udp servers and register them with selectors
-    tcp_server = comm.start_tcp_server('127.0.0.1', 12000)
+    tcp_server = comm.start_tcp_server(ip, 12000)
     sel.register(tcp_server, selectors.EVENT_READ, data='TCP_ACCEPT')
 
     while True:

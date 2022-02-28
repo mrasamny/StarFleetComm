@@ -4,6 +4,10 @@ from PIL import Image
 from comm import *
 
 if __name__ == '__main__':
+    ip = input('Enter an IP address (return for localhost):')
+    if len(ip.strip()) < 1:
+        ip = '127.0.0.1'
+    client_socket = connect_to_relay(ip=ip)
     client_socket = connect_to_relay()
     try:
         isDone = False

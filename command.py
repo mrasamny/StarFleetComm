@@ -4,7 +4,10 @@ from PIL import Image
 
 
 if __name__ == '__main__':
-    client_socket = connect_to_relay()
+    ip = input('Enter an IP address (return for localhost):')
+    if len(ip.strip()) < 1:
+        ip = '127.0.0.1'
+    client_socket = connect_to_relay(ip=ip)
     print('Connection established and relay server is ready!')
     try:
         while True:
