@@ -2,6 +2,7 @@ import time
 import comm
 import sys
 from PIL import Image
+import cv2
 from comm import *
 
 if __name__ == '__main__':
@@ -10,12 +11,16 @@ if __name__ == '__main__':
     else:
         ip = '127.0.0.1'
     client_socket = connect_to_relay(ip=ip)
-    client_socket = connect_to_relay()
     try:
+        vid = cv2.VideoCapture(0)
+        time.sleep(1)
         isDone = False
         while not isDone:
-            # load image into memory
-            img = Image.open('pic.jpeg')
+            ret, img = vid.read()
+            if not ret:
+                break
+            img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            img.show()
             # convert the image to a byte string for transport over network
             img = comm.image_to_bytes(img)
             # send message over network to relay server
