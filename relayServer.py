@@ -32,7 +32,9 @@ if __name__ == "__main__":
     tcp_client_socket= []
     sel = selectors.DefaultSelector()
     # Get IP address from user
-    ip = input('Enter an IP address (return for localhost):')
+    # ip = input('Enter an IP address (return for localhost):')
+    ip = comm.get_ip("en0")
+    print(f"IP address is {ip}")
     if len(ip.strip()) < 1:
         ip = '127.0.0.1'
     # start up tcp and udp servers and register them with selectors
